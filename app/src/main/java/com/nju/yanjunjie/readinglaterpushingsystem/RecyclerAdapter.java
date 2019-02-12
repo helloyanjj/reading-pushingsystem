@@ -6,57 +6,41 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.nju.yanjunjie.readinglaterpushingsystem.data.ShareContent;
+
 import java.util.List;
 
-public class RecyclerAdapter extends RecyclerView.Adapter {
+public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerItemViewHolder> {
     private List<ShareContent> mItemList;
-
-//    private ItemClickListener mItemClickListener ;
-//    public interface ItemClickListener{
-//        public void onItemClick(int position) ;
-//    }
-//    public void setOnItemClickListener(ItemClickListener itemClickListener){
-//        this.mItemClickListener = itemClickListener ;
-//
-//    }
-
 
     public RecyclerAdapter(List<ShareContent> itemList) {
         mItemList = itemList;
     }
+
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.share_content, parent, false);
-//        final RecyclerView.ViewHolder holder = new RecyclerView.ViewHolder(view);
-        return RecyclerItemViewHolder.newInstance(view);
+        final RecyclerItemViewHolder holder = new RecyclerItemViewHolder(view);
+        holder.mItemTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = holder.getAdapterPosition();
+                ShareContent shareContent = mItemList.get(position);
+                Toast.makeText(v.getContext(), "点击：" + shareContent.getContent(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        return holder;
     }
+
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
-        RecyclerItemViewHolder holder = (RecyclerItemViewHolder) viewHolder;
+    public void onBindViewHolder(RecyclerItemViewHolder holder, final int position) {
         ShareContent shareContent = mItemList.get(position);
         String itemText = shareContent.getContent();
         holder.setItemText(itemText);
-
-//        if (mItemClickListener != null){
-//            holder.itemView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    // 这里利用回调来给RecyclerView设置点击事件
-//                    mItemClickListener.onItemClick(position);
-//                }
-//            });
-//        }
-//
-//        holder.action_btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(mContext , item.getButtons() +"position -> "+position , Toast.LENGTH_SHORT).show();
-//            }
-//        });
-
-
-
+        holder.isReadOnClick(shareContent);
     }
+
     @Override
     public int getItemCount() {
         return mItemList == null ? 0 : mItemList.size();

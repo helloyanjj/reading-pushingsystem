@@ -2,19 +2,30 @@ package com.nju.yanjunjie.readinglaterpushingsystem;
 
 import android.annotation.TargetApi;
 import android.app.AppOpsManager;
+import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,18 +47,30 @@ public class TrackingInfo extends AppCompatActivity {
             }
         }
 
-        UsageStatsManager usm = (UsageStatsManager)getSystemService(Context.USAGE_STATS_SERVICE);
-//        Calendar calendar = Calendar.getInstance();
-//        long endTime = calendar.ge  tTimeInMillis();
-//        Log.d("TimeTest", "endTime " + endTime);
-//        calendar.add(Calendar.MINUTE, -90);
-//        long startTime = calendar.getTimeInMillis();
-//        Log.d("TimeTest", "startTime " + (startTime));
+        UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+        Calendar calendar = Calendar.getInstance();
+        long endTime = calendar.getTimeInMillis();
+        Log.d("TimeTest", "endTime " + endTime);
+        calendar.add(Calendar.HOUR_OF_DAY, -1);
+        long beginTime = calendar.getTimeInMillis();
+        Log.d("TimeTest", "startTime " + (beginTime));
 
 
-        List<UsageStats> list = usm.queryUsageStats(UsageStatsManager.INTERVAL_YEARLY,45654654,455456465);
+        List<String> eventInfo = new ArrayList<>();
+        UsageEvents.Event event = new UsageEvents.Event();
+        UsageEvents usageEvents = usm.queryEvents(beginTime, endTime);
+        while (usageEvents.hasNextEvent()) {
+            usageEvents.getNextEvent(event);
+            String packageName = event.getPackageName();
+            long timeStamp = event.getTimeStamp();
+            String eInfo = "包名：" + packageName + " " + "发生时间: " + stampToDate(timeStamp);
+            eventInfo.add(eInfo);
 
-        if(list == null || list.isEmpty()) {
+        }
+
+        List<UsageStats> list = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, beginTime, endTime);
+        List<String> usageInfo = new ArrayList<>();
+        if (list == null || list.isEmpty()) {
             // 当没有权限时的处理
             try {
                 startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
@@ -55,7 +78,19 @@ public class TrackingInfo extends AppCompatActivity {
                 e.printStackTrace();
             }
         } else {
-            for(UsageStats usageStats :list) {
+            for (UsageStats usageStats : list) {
+                String name = "";
+                try {
+                    PackageManager packageManager = getApplicationContext().getPackageManager();
+                    PackageInfo packageInfo = packageManager.getPackageInfo(
+                            usageStats.getPackageName(), 0);
+                    int labelRes = packageInfo.applicationInfo.labelRes;
+                    name = getApplicationContext().getResources().getString(labelRes);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
                 String packageName = usageStats.getPackageName();//获取包名
                 long firstTimeStamp = usageStats.getFirstTimeStamp();//获取第一次运行的时间
                 long lastTimeStamp = usageStats.getLastTimeStamp();//获取最后一次运行的时间
@@ -64,24 +99,41 @@ public class TrackingInfo extends AppCompatActivity {
                 int launchCount = 0;
                 try {
                     Field field = usageStats.getClass().getDeclaredField("mLaunchCount");//获取应用启动次数，UsageStats未提供方法来获取，只能通过反射来拿到
-                    if(field != null) {
+                    if (field != null) {
                         launchCount = field.getInt(usageStats);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();;
+                    e.printStackTrace();
                 }
                 if (totalTimeInForeground != 0 && launchCount != 0) {
+                    String info = "包名：" + packageName
+//                            + "app name " + name
+                            + "      第一次运行时间：" + stampToDate(firstTimeStamp) + "\n"
+                            + " 最后一次运行时间：" + stampToDate(lastTimeStamp)
+                            + " 上一次运行时间：" + lastTimeUsed / 1000 / 60 + "--" + stampToDate(lastTimeUsed)
+                            + " 总共运行时间：" + totalTimeInForeground / 1000 / 60 + "==" + totalTimeInForeground
+                            + " 运行次数： " + launchCount;
+                    usageInfo.add(info);
+                    eventInfo.add(info);
                     Log.d("TrackingInfo",
-                            "包名：" + packageName
-                                    + " 第一次运行时间："+ stampToDate(firstTimeStamp)
-                                    + " 最后一次运行时间："+ stampToDate(lastTimeStamp)
-                                    + " 上一次运行时间：" + lastTimeUsed + "--" +stampToDate(lastTimeUsed)
-                                    + " 总共运行时间：" + totalTimeInForeground
-                                    + " 运行次数： " + launchCount
+                            info
                     );
                 }
             }
         }
+        Gson gson = new Gson();
+        ListView recyclerView = (ListView) findViewById(R.id.trackinfo2);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(TrackingInfo.this);
+        linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.setReverseLayout(true);
+//        recyclerView.setLayoutManager(linearLayoutManager);
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(TrackingInfo.this, android.R.layout.simple_list_item_1
+                , usageInfo);
+//        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(TrackingInfo.this, android.R.layout.simple_list_item_1
+//                , eventInfo);
+        recyclerView.setAdapter(arrayAdapter);
+
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -92,7 +144,7 @@ public class TrackingInfo extends AppCompatActivity {
         return mode == AppOpsManager.MODE_ALLOWED;
     }
 
-    public static String stampToDate(long s){
+    public static String stampToDate(long s) {
         String res;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //        long lt = new Long(s);

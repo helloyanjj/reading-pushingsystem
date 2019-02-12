@@ -1,4 +1,4 @@
-package com.nju.yanjunjie.readinglaterpushingsystem;
+package com.nju.yanjunjie.readinglaterpushingsystem.data;
 
 import org.litepal.crud.DataSupport;
 

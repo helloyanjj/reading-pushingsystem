@@ -9,6 +9,16 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders = [
+                GETUI_APP_ID : "MdrWiZrbQF8tBP0APimz53",
+                GETUI_APP_KEY : "Ghc3wX9giW9Zv5dvjEVs74",
+                GETUI_APP_SECRET : "nrKSR5drML7nZUWhlYUre9"
+        ]
+
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86_64", "x86"
+        }
     }
     buildTypes {
         release {
@@ -33,6 +43,11 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:3.7.0'
     implementation 'com.squareup.okhttp3:okhttp:3.4.1'
     implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.github.zcweng:switch-button:0.0.3@aar'
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.getui:sdk:2.13.0.0'
+    implementation 'com.android.support:support-v4:+'
 //    implementation 'com.parse:parse-android:1.13.0'
 //    implementation 'net.sf.json-lib:json-lib:2.4:jdk15'
 
