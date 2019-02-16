@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,8 +37,8 @@ public class TrackingInfo extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracking_info);
 
-        boolean isaaa = TrackingInfo.checkUsagePermission(this);
-        if (!isaaa) {
+        boolean isUsagePermission = TrackingInfo.checkUsagePermission(this);
+        if (!isUsagePermission) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 try {
                     startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
@@ -48,90 +49,117 @@ public class TrackingInfo extends AppCompatActivity {
         }
 
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+        int day = 0;
+        List<String> eventFor = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
         long endTime = calendar.getTimeInMillis();
-        Log.d("TimeTest", "endTime " + endTime);
-        calendar.add(Calendar.HOUR_OF_DAY, -1);
-        long beginTime = calendar.getTimeInMillis();
-        Log.d("TimeTest", "startTime " + (beginTime));
+        while (day <= 7) {
+            calendar.add(Calendar.DAY_OF_WEEK, -1);
+            long beginTime = calendar.getTimeInMillis();
+//            calendar.add(Calendar.HOUR_OF_DAY, 1);
+//            long endTime2 = calendar.getTimeInMillis();
+            System.out.println("startTime " + (beginTime));
+            System.out.println("endTime " + (endTime));
+//            System.out.println("endTime2 " + stampToDate(endTime2));
+
+//        List<UsageStats> list = usm.queryUsageStats(UsageStatsManager.INTERVAL_BEST, beginTime, endTime2);
+//        List<String> usageInfo = new ArrayList<>();
+//        if (list == null || list.isEmpty()) {
+//            // 当没有权限时的处理
+//            try {
+//                startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            for (UsageStats usageStats : list) {
+//
+//                String packageName = usageStats.getPackageName();//获取包名
+//                long firstTimeStamp = usageStats.getFirstTimeStamp();//获取第一次运行的时间
+//                long lastTimeStamp = usageStats.getLastTimeStamp();//获取最后一次运行的时间
+//                long lastTimeUsed = usageStats.getLastTimeUsed();//获取上一次运行的时间
+//                long totalTimeInForeground = usageStats.getTotalTimeInForeground();//获取总共运行的时间
+//                int launchCount = 0;
+//                try {
+//                    Field field = usageStats.getClass().getDeclaredField("mLaunchCount");//获取应用启动次数，UsageStats未提供方法来获取，只能通过反射来拿到
+//                    if (field != null) {
+//                        launchCount = field.getInt(usageStats);
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                if (totalTimeInForeground != 0 && launchCount != 0) {
+//                    String info = "包名：" + packageName
+//                            + "      第一次运行时间：" + stampToDate(firstTimeStamp) + "\n"
+//                            + " 最后一次运行时间：" + stampToDate(lastTimeStamp)
+//                            + " 上一次运行时间：" + lastTimeUsed / 1000 / 60 + "--" + stampToDate(lastTimeUsed)
+//                            + " 总共运行时间：" + totalTimeInForeground / 1000 / 60 + "==" + totalTimeInForeground
+//                            + " 运行次数： " + launchCount;
+//                    usageInfo.add(info);
+//                }
+//            }
+//        }
 
 
-        List<String> eventInfo = new ArrayList<>();
-        UsageEvents.Event event = new UsageEvents.Event();
-        UsageEvents usageEvents = usm.queryEvents(beginTime, endTime);
-        while (usageEvents.hasNextEvent()) {
-            usageEvents.getNextEvent(event);
-            String packageName = event.getPackageName();
-            long timeStamp = event.getTimeStamp();
-            String eInfo = "包名：" + packageName + " " + "发生时间: " + stampToDate(timeStamp);
-            eventInfo.add(eInfo);
+            UsageEvents.Event event = new UsageEvents.Event();
+            UsageEvents usageEvents = usm.queryEvents(beginTime, endTime);
+            endTime = beginTime;
+            day++;
 
-        }
+            long time = 0;
+            int n = 1;
+            String eventInfo = "";
+            String initName = "";
+            long initTime = 0, firstTime = 0;
+            while (usageEvents.hasNextEvent()) {
+                usageEvents.getNextEvent(event);
+                if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                    if (n == 1) {
+                        initName = event.getPackageName();
+                        initTime = event.getTimeStamp();
 
-        List<UsageStats> list = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, beginTime, endTime);
-        List<String> usageInfo = new ArrayList<>();
-        if (list == null || list.isEmpty()) {
-            // 当没有权限时的处理
-            try {
-                startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            for (UsageStats usageStats : list) {
-                String name = "";
-                try {
-                    PackageManager packageManager = getApplicationContext().getPackageManager();
-                    PackageInfo packageInfo = packageManager.getPackageInfo(
-                            usageStats.getPackageName(), 0);
-                    int labelRes = packageInfo.applicationInfo.labelRes;
-                    name = getApplicationContext().getResources().getString(labelRes);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                        firstTime = initTime;
+                        n = 2;
+                        continue;
+                    } else {
+                        String packageName = event.getPackageName();
+                        long timeStamp = event.getTimeStamp();
+                        if (packageName == initName) {
+                            time = time + timeStamp - initTime;
+                            initTime = timeStamp;
+                            eventInfo = packageName + "---" + stampToDate(firstTime) + "---" + time / 1000 / 60;
+                        } else {
+                            if (time / 1000 / 60 >= 5) {
+                                eventFor.add(eventInfo);
+                            }
 
-
-                String packageName = usageStats.getPackageName();//获取包名
-                long firstTimeStamp = usageStats.getFirstTimeStamp();//获取第一次运行的时间
-                long lastTimeStamp = usageStats.getLastTimeStamp();//获取最后一次运行的时间
-                long lastTimeUsed = usageStats.getLastTimeUsed();//获取上一次运行的时间
-                long totalTimeInForeground = usageStats.getTotalTimeInForeground();//获取总共运行的时间
-                int launchCount = 0;
-                try {
-                    Field field = usageStats.getClass().getDeclaredField("mLaunchCount");//获取应用启动次数，UsageStats未提供方法来获取，只能通过反射来拿到
-                    if (field != null) {
-                        launchCount = field.getInt(usageStats);
+                            initName = packageName;
+                            initTime = timeStamp;
+                            firstTime = initTime;
+                            time = 0;
+                        }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+//                String s = packageName + "时间:" + stampToDate(timeStamp) + " ---" + type;
+//                eventFor.add(s);
                 }
-                if (totalTimeInForeground != 0 && launchCount != 0) {
-                    String info = "包名：" + packageName
-//                            + "app name " + name
-                            + "      第一次运行时间：" + stampToDate(firstTimeStamp) + "\n"
-                            + " 最后一次运行时间：" + stampToDate(lastTimeStamp)
-                            + " 上一次运行时间：" + lastTimeUsed / 1000 / 60 + "--" + stampToDate(lastTimeUsed)
-                            + " 总共运行时间：" + totalTimeInForeground / 1000 / 60 + "==" + totalTimeInForeground
-                            + " 运行次数： " + launchCount;
-                    usageInfo.add(info);
-                    eventInfo.add(info);
-                    Log.d("TrackingInfo",
-                            info
-                    );
-                }
+
+
             }
+
         }
-        Gson gson = new Gson();
+
+
+
+
         ListView recyclerView = (ListView) findViewById(R.id.trackinfo2);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(TrackingInfo.this);
         linearLayoutManager.setStackFromEnd(true);
         linearLayoutManager.setReverseLayout(true);
 //        recyclerView.setLayoutManager(linearLayoutManager);
 
+        System.out.println(eventFor);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(TrackingInfo.this, android.R.layout.simple_list_item_1
-                , usageInfo);
-//        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(TrackingInfo.this, android.R.layout.simple_list_item_1
-//                , eventInfo);
+                , eventFor);
         recyclerView.setAdapter(arrayAdapter);
 
     }
@@ -147,11 +175,112 @@ public class TrackingInfo extends AppCompatActivity {
     public static String stampToDate(long s) {
         String res;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        long lt = new Long(s);
         Date date = new Date(s);
         res = simpleDateFormat.format(date);
         return res;
     }
+}
+
+
+//    /**
+//     * 获取栈顶运行的进程 * @param context * @return
+//     */
+//    public static String getLauncherTopApp(Context context) {
+//        UsageStatsManager sUsageStatsManager = null;
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+//            ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+//            List<ActivityManager.RunningTaskInfo> appTasks = activityManager.getRunningTasks(1);
+//            if (null != appTasks && !appTasks.isEmpty()) {
+//                return appTasks.get(0).topActivity.getPackageName();
+//            }
+//        } else {
+//            long endTime = System.currentTimeMillis();
+//            long beginTime = endTime - 1000;
+//            if (sUsageStatsManager == null) {
+//                sUsageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+//            }
+//            String result = "";
+//            UsageEvents.Event event = new UsageEvents.Event();
+//            UsageEvents usageEvents = sUsageStatsManager.queryEvents(beginTime, endTime);
+//            while (usageEvents.hasNextEvent()) {
+//                usageEvents.getNextEvent(event);
+//                //监测app由后台转前台
+//                if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+//                    result = event.getPackageName();
+//                }
+//                //监测app由前台转后台//
+//                if (event.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) {
+//                    result = event.getPackageName();
+//
+//                }
+//            }
+//            if (!android.text.TextUtils.isEmpty(result)) {
+//                return result;
+//            }
+//        }
+//        return "";
+//    }
+//
+//
+//    /**
+//     * 判断指定进程是否由前台转后台 * @param context * @return
+//     */
+//    public static boolean IsLauncherToBack(Context context, String pkgName) {
+//        boolean isRunning = false;
+//        long endTime = System.currentTimeMillis();
+//        long beginTime = endTime - 1000;
+//        if (sUsageStatsManager == null) {
+//            sUsageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+//        }
+//        String result = "";
+//        UsageEvents.Event event = new UsageEvents.Event();
+//        UsageEvents usageEvents = sUsageStatsManager.queryEvents(beginTime, endTime);
+//        while (usageEvents.hasNextEvent()) {
+//            usageEvents.getNextEvent(event);
+//
+//            //监测app由前台转后台
+//            if (event.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) {
+//                result = event.getPackageName();
+//            }
+//        }
+//        if (!android.text.TextUtils.isEmpty(result) && pkgName.equals(result)) {
+//            isRunning = true;
+//        }
+//        return isRunning;
+//    }
+//
+//    //4. 获取指定应用运行的时间
+//    // 查找资料发现Android本身提供了获取应用使用时间的api
+//    // (来源：http://blog.csdn.net/pierce0young/article/details/22292603)，
+//    // 但是自己试了发现两个主要的类都找不到，不知道为什么，如果大家发现什么，请一定给我留下解释，谢谢！
+//    // 那么接下来我就是间接的获取时间，即监听指定app的安装成功及启动，开始计时，
+//    // 再配合判断应用在前台以及后台，计算时间的长短来获取运行时间。
+//    // 5.允许获取应用使用情况
+//    // 以上步骤大多基于用户已打开，
+//    // 允许该应用获取其他应用使用情况，
+//    // 这个前提，接下来是判断手机上是否存在这个打开界面、是否已打开这个开关以及打开这个界面的代码：
+//    // /** * 监测手机上是否存在允许查看应用使用情况
+//    // * @return */
+//    private boolean isNoOption() {
+//        PackageManager packageManager = getapplicationContext().getPackageManager();
+//        //打开允许获取应用使用情况的界面
+//        Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+//        List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+//        return list.size() > 0;
+//    }
+//
+//    /**
+//     * 监测允许查看应用使用情况是否打开 * @return
+//     */
+//    private boolean isNoSwitch() {
+//        long ts = System.currentTimeMillis();
+//        UsageStatsManager usageStatsManager = (UsageStatsManager) getApplicationContext().getSystemService(USAGE_STATS_SERVICE);
+//        List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, 0, ts);
+//        if (queryUsageStats == null || queryUsageStats.isEmpty()) {
+//            return false;
+//        }
+//        return true;
+//    }
 
 //    //UsageStatsManager
 //    public static void checkUsageStateAccessPermission(Context context) {
@@ -185,5 +314,5 @@ public class TrackingInfo extends AppCompatActivity {
 //        }
 //    }
 
-}
+
 
