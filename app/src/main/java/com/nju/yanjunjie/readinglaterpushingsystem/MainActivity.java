@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton addContent;
     private ShareContent shareContent = new ShareContent();
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             shareContent.setUserId("yanjunjie");
-            HttpUtil.sendOkHttpRequest(shareContent, "http://10.0.2.2:6666/getContent", new okhttp3.Callback() {
+            HttpUtil.sendOkHttpRequest(shareContent, ReturnInfo.address + ":2221/getContent", new okhttp3.Callback() {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     String responseData = response.body().string();
@@ -193,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                 shareContent.setAction("send");
                 shareContent.setContent(content);
                 shareContent.setType("textd");
-                HttpUtil.sendOkHttpRequest(shareContent, "http://10.0.2.2:6666/addContent", new okhttp3.Callback() {
+                HttpUtil.sendOkHttpRequest(shareContent, ReturnInfo.address + ":2221/addContent", new okhttp3.Callback() {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         final String responseData = response.body().string();
@@ -277,10 +279,17 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         }
         navigationView.setCheckedItem(R.id.nav_mail);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                mDrawerLayout.closeDrawers();
+                if (item.getTitle() == "自动推送") {
+//                    Toast.makeText(MainActivity.this, "lalala", Toast.LENGTH_SHORT).show();
+
+                }
+
+
+//                mDrawerLayout.closeDrawers();
                 return true;
             }
         });

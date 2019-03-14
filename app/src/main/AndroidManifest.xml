@@ -34,7 +34,7 @@
 
         </activity>
         <activity
-            android:name=".TrackingInfo"
+            android:name=".MainActivity"
             android:label="稍后读推送系统">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -63,7 +63,7 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".TrackingInfo" />
 
         <service
             android:name=".MessagePushService"

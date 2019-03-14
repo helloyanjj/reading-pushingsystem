@@ -53,7 +53,7 @@ public class RecyclerItemViewHolder extends RecyclerView.ViewHolder {
             readStatus = "true";
         } else readStatus = "false";
         shareContent.setHaveRead(readStatus);
-        HttpUtil.sendOkHttpRequest(shareContent, "http://10.0.2.2:6666/changeReadStatus", new okhttp3.Callback() {
+        HttpUtil.sendOkHttpRequest(shareContent, ReturnInfo.address+":2221/changeReadStatus", new okhttp3.Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseData = response.body().string();

@@ -54,25 +54,6 @@
             android:layout_margin="16dp"
             android:src="@drawable/ic_done" />
 
-        <!--<Button-->
-            <!--android:id="@+id/testButton"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="center_vertical"-->
-            <!--android:text="test"-->
-            <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"/>-->
-
-        <!--<TextView-->
-            <!--android:id="@+id/testTextView"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="center_vertical"-->
-            <!--android:autoLink="web"-->
-            <!--android:text="https://www.jianshu.com/p/4059e5c85434"/>-->
-
-
-
-
     </android.support.design.widget.CoordinatorLayout>
 
     <android.support.design.widget.NavigationView
