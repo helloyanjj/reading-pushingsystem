@@ -17,20 +17,30 @@ import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.ArraySet;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.nju.yanjunjie.readinglaterpushingsystem.data.AppStatus;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+
+import okhttp3.Call;
+import okhttp3.Response;
 
 public class TrackingInfo extends AppCompatActivity {
+    private AppStatus appStatus = new AppStatus();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +61,11 @@ public class TrackingInfo extends AppCompatActivity {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
         int day = 0;
         List<String> eventFor = new ArrayList<>();
+//        List<AppStatus> appStatusesEvent = new ArrayList<>();
+        Set<AppStatus> appStatusSet = new ArraySet<>();
         Calendar calendar = Calendar.getInstance();
         long endTime = calendar.getTimeInMillis();
-        while (day <= 7) {
+        while (day <= 6) {
             calendar.add(Calendar.DAY_OF_WEEK, -1);
             long beginTime = calendar.getTimeInMillis();
 //            calendar.add(Calendar.HOUR_OF_DAY, 1);
@@ -118,6 +130,9 @@ public class TrackingInfo extends AppCompatActivity {
                         initName = event.getPackageName();
                         initTime = event.getTimeStamp();
 
+                        appStatus.setPackageName(initName);
+                        appStatus.setFirstTimeStamp(initTime);
+
                         firstTime = initTime;
                         n = 2;
                         continue;
@@ -127,15 +142,22 @@ public class TrackingInfo extends AppCompatActivity {
                         if (packageName == initName) {
                             time = time + timeStamp - initTime;
                             initTime = timeStamp;
+                            appStatus.setTotalTimeInForeground(time/1000/60);
                             eventInfo = packageName + "---" + stampToDate(firstTime) + "---" + time / 1000 / 60;
                         } else {
                             if (time / 1000 / 60 >= 5) {
                                 eventFor.add(eventInfo);
+//                                appStatusesEvent.add(appStatus);
+                                appStatusSet.add(appStatus);
+
                             }
 
                             initName = packageName;
                             initTime = timeStamp;
                             firstTime = initTime;
+                            appStatus = new AppStatus();
+                            appStatus.setPackageName(packageName);
+                            appStatus.setFirstTimeStamp(timeStamp);
                             time = 0;
                         }
                     }
@@ -147,6 +169,30 @@ public class TrackingInfo extends AppCompatActivity {
             }
 
         }
+
+        List<AppStatus> appStatusesEvent = new ArrayList<>(appStatusSet);
+//        System.out.println(appStatusesEvent.toString());
+
+        HttpUtil.sendOkHttpRequest(appStatusesEvent, ReturnInfo.address + ":2222/addAppSatas", new okhttp3.Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String fail = "存储失败";
+                        Log.d("MainActivity", fail);
+                    }
+                });
+            }
+
+        });
+
 
 
 

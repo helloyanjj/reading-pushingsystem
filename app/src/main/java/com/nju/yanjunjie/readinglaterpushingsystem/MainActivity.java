@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     String responseData = response.body().string();
+                    System.out.println(responseData);
                     publishProgress(responseData);
                 }
 

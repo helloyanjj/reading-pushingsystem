@@ -1,6 +1,8 @@
 package com.nju.yanjunjie.readinglaterpushingsystem.data;
 
-public class AppStatus {
+import java.util.Comparator;
+
+public class AppStatus  {
 
     private long userId;
     private String packageName;
@@ -78,4 +80,5 @@ public class AppStatus {
                 ", queryTime=" + queryTime +
                 '}';
     }
+
 }
