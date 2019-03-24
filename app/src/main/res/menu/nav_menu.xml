@@ -2,17 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="all">
         <item
-            android:id="@+id/nav_call"
+            android:id="@+id/auto"
             android:icon="@drawable/nav_call"
             android:title="自动推送"/>
         <item
             android:id="@+id/nav_friends"
             android:icon="@drawable/nav_friends"
-            android:title="自定义时间"/>
+            android:title="实时推送"/>
         <item
             android:id="@+id/nav_location"
             android:icon="@drawable/nav_location"
-            android:title="实时推送"/>
+            android:title="自定义推送"/>
         <item
             android:id="@+id/nav_mail"
             android:icon="@drawable/nav_mail"

@@ -173,7 +173,7 @@ public class TrackingInfo extends AppCompatActivity {
         List<AppStatus> appStatusesEvent = new ArrayList<>(appStatusSet);
 //        System.out.println(appStatusesEvent.toString());
 
-        HttpUtil.sendOkHttpRequest(appStatusesEvent, ReturnInfo.address + ":2222/addAppSatas", new okhttp3.Callback() {
+        HttpUtil.sendOkHttpRequest(appStatusesEvent, ReturnInfo.address + ":2222/addAppStats", new okhttp3.Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseData = response.body().string();

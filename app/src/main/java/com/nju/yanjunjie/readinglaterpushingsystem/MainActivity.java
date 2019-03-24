@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initSwipeRefreshLayout() {
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
-        swipeRefreshLayout.setColorSchemeColors(R.color.colorPrimary);
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -279,20 +279,24 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         }
-        navigationView.setCheckedItem(R.id.nav_mail);
+        navigationView.setCheckedItem(R.id.nav_mail);//默认选项
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if (item.getTitle() == "自动推送") {
-//                    Toast.makeText(MainActivity.this, "lalala", Toast.LENGTH_SHORT).show();
-
+                if (item.getTitle().equals("自动推送")) {
+                    Intent startIntent = new Intent(MyApplication.getContext(), TrackInfoService.class);
+                    startService(startIntent);
+                    Toast.makeText(MainActivity.this, "开启自动推送", Toast.LENGTH_SHORT).show();
+                } else if (item.getTitle().equals("自定义时间")) {
+                    Intent stopIntent = new Intent(MyApplication.getContext(), TrackInfoService.class);
+                    stopService(stopIntent);
+                    Toast.makeText(MainActivity.this, "取消自动推送", Toast.LENGTH_SHORT).show();
                 }
 
-
-//                mDrawerLayout.closeDrawers();
+                mDrawerLayout.closeDrawers();
                 return true;
-            }
+}
         });
     }
 

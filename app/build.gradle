@@ -4,16 +4,16 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.nju.yanjunjie.readinglaterpushingsystem"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders = [
-                GETUI_APP_ID : "MdrWiZrbQF8tBP0APimz53",
-                GETUI_APP_KEY : "Ghc3wX9giW9Zv5dvjEVs74",
-                GETUI_APP_SECRET : "nrKSR5drML7nZUWhlYUre9"
+                GETUI_APP_ID    : "MdrWiZrbQF8tBP0APimz53",
+                GETUI_APP_KEY   : "Ghc3wX9giW9Zv5dvjEVs74",
+                GETUI_APP_SECRET: "nrKSR5drML7nZUWhlYUre9"
         ]
 
         ndk {

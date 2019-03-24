@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <!-- iBeancon功能所需权限 -->
 
@@ -34,7 +34,7 @@
 
         </activity>
         <activity
-            android:name=".TrackingInfo"
+            android:name=".MainActivity"
             android:label="稍后读推送系统">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -63,7 +63,7 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".TrackingInfo" />
 
         <service
             android:name=".MessagePushService"
@@ -71,6 +71,17 @@
             android:exported="true" />
         <service
             android:name=".DemoIntentService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".FreeTimeActivity" />
+
+        <service
+            android:name=".TrackInfoService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".ForegroundService"
             android:enabled="true"
             android:exported="true"></service>
     </application>

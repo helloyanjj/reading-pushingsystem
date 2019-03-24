@@ -3,5 +3,6 @@ package com.nju.yanjunjie.readinglaterpushingsystem;
 public interface ReturnInfo {
     String success = "success";
     String fail = "fail";
-    String address = "http://172.19.108.215";
+    String address = "http://172.19.106.181";
+//    String address = "http://10.0.0.2";
 }

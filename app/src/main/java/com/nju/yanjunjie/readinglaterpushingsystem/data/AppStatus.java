@@ -1,6 +1,5 @@
 package com.nju.yanjunjie.readinglaterpushingsystem.data;
 
-import java.util.Comparator;
 
 public class AppStatus  {
 
