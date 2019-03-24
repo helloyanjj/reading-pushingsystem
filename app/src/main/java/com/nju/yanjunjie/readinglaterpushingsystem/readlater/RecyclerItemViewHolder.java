@@ -1,4 +1,4 @@
-package com.nju.yanjunjie.readinglaterpushingsystem;
+package com.nju.yanjunjie.readinglaterpushingsystem.readlater;
 
 import android.os.Handler;
 import android.os.Message;
@@ -7,6 +7,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nju.yanjunjie.readinglaterpushingsystem.R;
+import com.nju.yanjunjie.readinglaterpushingsystem.data.ReturnInfo;
+import com.nju.yanjunjie.readinglaterpushingsystem.data.HttpUtil;
+import com.nju.yanjunjie.readinglaterpushingsystem.data.MyApplication;
 import com.nju.yanjunjie.readinglaterpushingsystem.data.ShareContent;
 import com.suke.widget.SwitchButton;
 

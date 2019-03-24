@@ -1,4 +1,4 @@
-package com.nju.yanjunjie.readinglaterpushingsystem;
+package com.nju.yanjunjie.readinglaterpushingsystem.data;
 
 public interface ReturnInfo {
     String success = "success";

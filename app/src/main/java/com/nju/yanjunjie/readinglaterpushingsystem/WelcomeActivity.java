@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.nju.yanjunjie.readinglaterpushingsystem.readlater.MainActivity;
+
 public class WelcomeActivity extends Activity {
 
     @Override

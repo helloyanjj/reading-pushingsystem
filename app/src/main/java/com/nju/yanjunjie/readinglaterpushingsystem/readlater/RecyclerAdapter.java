@@ -1,4 +1,4 @@
-package com.nju.yanjunjie.readinglaterpushingsystem;
+package com.nju.yanjunjie.readinglaterpushingsystem.readlater;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.nju.yanjunjie.readinglaterpushingsystem.R;
 import com.nju.yanjunjie.readinglaterpushingsystem.data.ShareContent;
 
 import java.util.List;

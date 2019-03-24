@@ -1,4 +1,4 @@
-package com.nju.yanjunjie.readinglaterpushingsystem;
+package com.nju.yanjunjie.readinglaterpushingsystem.gtpush;
 
 import android.app.Service;
 import android.content.Intent;

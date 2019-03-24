@@ -1,4 +1,4 @@
-package com.nju.yanjunjie.readinglaterpushingsystem;
+package com.nju.yanjunjie.readinglaterpushingsystem.data;
 
 import com.google.gson.Gson;
 import com.nju.yanjunjie.readinglaterpushingsystem.data.AppStatus;

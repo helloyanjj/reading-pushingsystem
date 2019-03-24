@@ -1,4 +1,4 @@
-package com.nju.yanjunjie.readinglaterpushingsystem;
+package com.nju.yanjunjie.readinglaterpushingsystem.freetime;
 
 import android.app.Service;
 import android.app.usage.UsageEvents;
@@ -12,7 +12,10 @@ import android.provider.Settings;
 import android.util.ArraySet;
 import android.util.Log;
 
+import com.nju.yanjunjie.readinglaterpushingsystem.TrackingInfo;
 import com.nju.yanjunjie.readinglaterpushingsystem.data.AppStatus;
+import com.nju.yanjunjie.readinglaterpushingsystem.data.HttpUtil;
+import com.nju.yanjunjie.readinglaterpushingsystem.data.ReturnInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,8 +25,8 @@ import java.util.Set;
 import okhttp3.Call;
 import okhttp3.Response;
 
-import static com.nju.yanjunjie.readinglaterpushingsystem.ReturnInfo.fail;
-import static com.nju.yanjunjie.readinglaterpushingsystem.ReturnInfo.success;
+import static com.nju.yanjunjie.readinglaterpushingsystem.data.ReturnInfo.fail;
+import static com.nju.yanjunjie.readinglaterpushingsystem.data.ReturnInfo.success;
 import static com.nju.yanjunjie.readinglaterpushingsystem.TrackingInfo.stampToDate;
 
 public class TrackInfoService extends Service {
