@@ -28,6 +28,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.nju.yanjunjie.readinglaterpushingsystem.freetime.FreeTimeActivity;
 import com.nju.yanjunjie.readinglaterpushingsystem.gtpush.MessagePushService;
 import com.nju.yanjunjie.readinglaterpushingsystem.R;
 import com.nju.yanjunjie.readinglaterpushingsystem.data.ReturnInfo;
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void initToolbar() {
+    public void initToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle(getString(R.string.app_name));
@@ -299,6 +300,9 @@ public class MainActivity extends AppCompatActivity {
                     Intent stopIntent = new Intent(MyApplication.getContext(), TrackInfoService.class);
                     stopService(stopIntent);
                     Toast.makeText(MainActivity.this, "取消自动推送", Toast.LENGTH_SHORT).show();
+                } else if (item.getTitle().equals("修改设置")) {
+                    Intent intent = new Intent(MainActivity.this, FreeTimeActivity.class);
+                    startActivity(intent);
                 }
 
                 mDrawerLayout.closeDrawers();

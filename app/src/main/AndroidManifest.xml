@@ -74,7 +74,7 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".FreeTimeActivity" />
+        <activity android:name=".freetime.FreeTimeActivity" />
 
         <service
             android:name=".freetime.TrackInfoService"
@@ -83,7 +83,9 @@
         <service
             android:name=".ForegroundService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".freetime.CustomTimeActivity"></activity>
     </application>
 
 </manifest>

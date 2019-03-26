@@ -16,7 +16,7 @@
         <item
             android:id="@+id/nav_mail"
             android:icon="@drawable/nav_mail"
-            android:title="修改信息"/>
+            android:title="修改设置"/>
         <item
             android:id="@+id/nav_task"
             android:icon="@drawable/nav_task"

@@ -6,6 +6,7 @@ import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -31,21 +32,32 @@ public class ForegroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        private String getForegroundApp() {
-            long ts = System.currentTimeMillis();
-        UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
-            List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST,ts-2000, ts);
-            if (queryUsageStats == null || queryUsageStats.isEmpty()) {
-//                return null;
-            }
+        Handler mH = new Handler();
+        Runnable r = new Runnable() {
             UsageStats recentStats = null;
-            for (UsageStats usageStats : queryUsageStats) {
-                if(recentStats == null || recentStats.getLastTimeUsed() < usageStats.getLastTimeUsed()){
-                    recentStats = usageStats;
+            @Override
+            public void run() {
+                long ts = System.currentTimeMillis();
+                UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+                List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, ts - 20000, ts);
+                if (queryUsageStats == null || queryUsageStats.isEmpty()) {
+//                    return null;
                 }
+
+                for (UsageStats usageStats : queryUsageStats) {
+                    if (recentStats == null || recentStats.getLastTimeUsed() < usageStats.getLastTimeUsed()) {
+                        recentStats = usageStats;
+                    }
+                }
+                String packageName = recentStats.getPackageName();
+                System.out.println("-----------" + packageName);
             }
-            String packageName = recentStats.getPackageName();
-//        }
+        };
+        int n = 10;
+        while (n>0) {
+            mH.postDelayed(r, 1000 * 10 );
+            n--;
+        }
 
         return super.onStartCommand(intent, flags, startId);
     }
