@@ -35,12 +35,8 @@
         </activity>
         <activity
             android:name=".readlater.MainActivity"
-            android:label="稍后读推送系统">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:label="回顾式阅读辅助系统">
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -75,6 +71,17 @@
             android:exported="true" />
 
         <activity android:name=".freetime.FreeTimeActivity" />
+        <activity android:name=".user.Register" />
+
+        <activity android:name=".user.Login" >
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
+
+        <activity android:name=".user.LoginWithPassword" />
 
         <service
             android:name=".freetime.TrackInfoService"
