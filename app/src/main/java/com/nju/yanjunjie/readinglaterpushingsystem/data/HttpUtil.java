@@ -3,6 +3,7 @@ package com.nju.yanjunjie.readinglaterpushingsystem.data;
 import com.google.gson.Gson;
 import com.nju.yanjunjie.readinglaterpushingsystem.data.AppStatus;
 import com.nju.yanjunjie.readinglaterpushingsystem.data.ShareContent;
+import com.nju.yanjunjie.readinglaterpushingsystem.user.User;
 
 import java.io.IOException;
 import java.util.List;
@@ -69,6 +70,19 @@ public class HttpUtil {
         String content = new Gson().toJson(appStatus);
         RequestBody requestBody = RequestBody.create(JSON, content);
 
+        Request request = new Request.Builder()
+                .url(address)
+                .post(requestBody)
+                .build();
+        client.newCall(request).enqueue(callback);
+
+    }
+
+    public static void sendOkHttpRequest(User user, String address, okhttp3.Callback callback) {
+        OkHttpClient client = new OkHttpClient();
+        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        String userinfo = new Gson().toJson(user);
+        RequestBody requestBody = RequestBody.create(JSON, userinfo);
         Request request = new Request.Builder()
                 .url(address)
                 .post(requestBody)

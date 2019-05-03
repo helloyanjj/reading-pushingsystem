@@ -184,11 +184,14 @@ public class MainActivity extends AppCompatActivity {
         String action = intent.getAction();
         String type = intent.getType();
         String sharedContent = intent.getStringExtra(Intent.EXTRA_TEXT);
-        if (action.equals(Intent.ACTION_SEND) && type.equals("text/plain")) {
-            final EditText edit = new EditText(MainActivity.this);
-            edit.setText(sharedContent);
-            addShareContent(edit);
+        if (action !=null) {
+            if (action.equals(Intent.ACTION_SEND) && type.equals("text/plain")) {
+                final EditText edit = new EditText(MainActivity.this);
+                edit.setText(sharedContent);
+                addShareContent(edit);
+            }
         }
+
     }
 
     private void addShareContent(final EditText edit) {

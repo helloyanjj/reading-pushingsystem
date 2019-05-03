@@ -9,16 +9,18 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nju.yanjunjie.readinglaterpushingsystem.R;
+import com.nju.yanjunjie.readinglaterpushingsystem.readlater.MainActivity;
 
 public class LoginWithPassword extends Activity {                 //登录界面活动
 
     public int pwdresetFlag=0;
     private EditText loginTel;                        //登录手机号
     private EditText loginPassword;               //登录密码
-    private EditText findPassword;
+    private TextView findPassword;
     private Button loginButton;                //登录按钮
     private Button loginWithIdentifyCode;                      //跳转验证码登录
     private Button registerButton;                          //注册
@@ -70,7 +72,9 @@ public class LoginWithPassword extends Activity {                 //登录界面
                     Toast.makeText(LoginWithPassword.this, "sd",Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.login_btn:                            //登录界面的注册按钮
-
+                    login();
+//                    Intent aa = new Intent(LoginWithPassword.this,MainActivity.class) ;    //切换Login Activity至User Activity
+//                    startActivity(aa);
                     break;
                 case R.id.login_with_verification_code:                              //登录界面的登录按钮
                     Intent intent_login_with_verification_code = new Intent(LoginWithPassword.this,Login.class) ;    //切换Login Activity至User Activity
@@ -86,15 +90,16 @@ public class LoginWithPassword extends Activity {                 //登录界面
         }
     };
 
-    public void login(View view) {                                              //登录按钮监听事件
+    public void login() {                                              //登录按钮监听事件
         if (isUserNameAndPwdValid()) {
-            String userName = loginTel.getText().toString().trim();    //获取当前输入的手机和密码信息
+            String tel = loginTel.getText().toString().trim();    //获取当前输入的手机和密码信息
             String userPwd = loginPassword.getText().toString().trim();
             SharedPreferences.Editor editor =login_sp.edit();
-            int result=mUserDataManager.findUserByNameAndPwd(userName, userPwd);
+//            int result=mUserDataManager.findUserByNameAndPwd(tel, userPwd);
+            int result = 1;
             if(result==1){                                             //返回1说明用户名和密码均正确
                 //保存用户名和密码
-                editor.putString("USER_NAME", userName);
+                editor.putString("USER_NAME", tel);
                 editor.putString("PASSWORD", userPwd);
 
 //                //是否记住密码
@@ -105,7 +110,7 @@ public class LoginWithPassword extends Activity {                 //登录界面
 //                }
                 editor.commit();
 
-                Intent intent = new Intent(LoginWithPassword.this,User.class) ;    //切换Login Activity至User Activity
+                Intent intent = new Intent(LoginWithPassword.this,MainActivity.class) ;    //切换Login Activity至MainActivity Activity
                 startActivity(intent);
                 finish();
                 Toast.makeText(this, getString(R.string.login_success),Toast.LENGTH_SHORT).show();//登录成功提示
