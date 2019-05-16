@@ -41,11 +41,11 @@
 
     <EditText
         android:id="@+id/enter_verification_code"
-
+        android:drawableLeft="@android:drawable/ic_lock_idle_lock"
         android:layout_width="fill_parent"
         android:layout_height="60dp"
         android:ems="10"
-        android:hint="       请输入您的验证码"
+        android:hint="请输入您的验证码"
         android:layout_below="@+id/register_tel"
         android:layout_alignRight="@+id/register_tel"
         android:layout_alignEnd="@+id/register_tel"

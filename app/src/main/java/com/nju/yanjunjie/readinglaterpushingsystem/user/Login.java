@@ -2,12 +2,14 @@ package com.nju.yanjunjie.readinglaterpushingsystem.user;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,6 +25,8 @@ import com.nju.yanjunjie.readinglaterpushingsystem.data.ReturnInfo;
 import com.nju.yanjunjie.readinglaterpushingsystem.readlater.MainActivity;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
@@ -38,16 +42,19 @@ public class Login extends Activity {                 //登录界面活动
     private Button loginButton;                       //登录按钮
     private Button loginWithPwd;                      //跳转密码登录
     private Button registerButton;                    //注册
+    private SharedPreferences sharedPreferences;
 
     private TimeCount identifyCodeTime = new TimeCount(3000, 1000);
-    private UserDataManager mUserDataManager;         //用户数据管理类
-    private User user = new User();
+//    private UserDataManager mUserDataManager;         //用户数据管理类
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
         MobSDK.init(Login.this, "2af96f10204f0", "336ca229cff5753c60749728f10343c0");
+        // 注册一个事件回调，用于处理SMSSDK接口请求的结果
+        SMSSDK.registerEventHandler(eventHandler);
 
         loginTel = (EditText) findViewById(R.id.login_tel);
         loginIdentifyCode = (EditText) findViewById(R.id.login_verification_code);
@@ -71,8 +78,8 @@ public class Login extends Activity {                 //登录界面活动
                 case R.id.get_verification_code:
                     if (isTelValid()) {
                         SMSSDK.getVerificationCode("86", loginTel.getText().toString().trim());
+                        identifyCodeTime.start();
                     }
-                    identifyCodeTime.start();
                     // 在尝试读取通信录时以弹窗提示用户（可选功能）
                     SMSSDK.setAskPermisionOnReadContact(true);
                     break;
@@ -156,6 +163,7 @@ public class Login extends Activity {                 //登录界面活动
     public void login() {                                              //登录按钮监听事件
         if (isTelAndCodeValid()) {
             String tel = loginTel.getText().toString().trim();    //获取当前输入的手机和密码信息
+            User user = new User();
             user.setUserId(tel);
             HttpUtil.sendOkHttpRequest(user, ReturnInfo.address + ":2221/validateUser", new okhttp3.Callback() {
                 @Override
@@ -172,15 +180,8 @@ public class Login extends Activity {                 //登录界面活动
                             }
                         });
                     } else if (responseData.equals("true")) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                // 注册一个事件回调，用于处理SMSSDK接口请求的结果
-                                SMSSDK.registerEventHandler(eventHandler);
-                                // 提交验证码，其中的code表示验证码，如“1357”
-                                SMSSDK.submitVerificationCode("86", loginTel.getText().toString(), loginIdentifyCode.getText().toString());
-                            }
-                        });
+                        // 提交验证码，其中的code表示验证码，如“1357”
+                        SMSSDK.submitVerificationCode("86", loginTel.getText().toString(), loginIdentifyCode.getText().toString());
 
 
                     }
@@ -193,7 +194,7 @@ public class Login extends Activity {                 //登录界面活动
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            String fail = "连接失败";
+                            String fail = "网络连接失败";
                             Toast.makeText(Login.this, fail,
                                     Toast.LENGTH_LONG).show();
                             Log.d("MainActivity", fail);
@@ -229,10 +230,10 @@ public class Login extends Activity {                 //登录界面活动
 
     @Override
     protected void onResume() {
-        if (mUserDataManager == null) {
-            mUserDataManager = new UserDataManager(this);
-            mUserDataManager.openDataBase();
-        }
+//        if (mUserDataManager == null) {
+//            mUserDataManager = new UserDataManager(this);
+//            mUserDataManager.openDataBase();
+//        }
         super.onResume();
     }
 
@@ -244,10 +245,48 @@ public class Login extends Activity {                 //登录界面活动
 
     @Override
     protected void onPause() {
-        if (mUserDataManager != null) {
-            mUserDataManager.closeDataBase();
-            mUserDataManager = null;
-        }
+//        if (mUserDataManager != null) {
+//            mUserDataManager.closeDataBase();
+//            mUserDataManager = null;
+//        }
         super.onPause();
     }
+
+//    //初始化数据，获得应用的token并且保存
+//    public void initData() {
+//        //判断有没有旧的token，AndroidFileUtil这个工具类在下面的代码中
+//        String myToken = AndroidFileUtil.readFileByLines(getCacheDir().getAbsolutePath() + "/" + DataConfig.TOKEN_FILE_NAME);
+//        if (!TextUtils.isEmpty(myToken)) {
+//            Log.d("WelcomeActivity","Token: "+myToken);
+//        } else {
+//            APIConfig.getDataIntoView(new Runnable() {
+//                @Override
+//                public void run() {
+//                    String member = "member";
+//                    Map<String, String> map = new HashMap<>();
+//                    map.put("grantType", member);
+//                    map.put("token","");
+//                    map.put("appId","");
+//                    map.put("appSecret","");
+//                //对传入的数据进行加密
+//                    String paramJson = EncryptUtil.encrypt(map);
+//                //下面的是获取token的服务器地址，项目中应该根据具体的请求地址
+//                    String url = "http://47.96.175.241/shop/api/token/refresh.do";
+//                    String rs = HttpUtil.GetDataFromNetByPost(url,
+//                            new ParamsBuilder().addParam("paramJson", paramJson).getParams());
+//                //对数据进行解密到我们的一个保存token的类中（UserToken类）
+//                    final UserToken result = EncryptUtil.decrypt(rs, UserToken.class);
+//                    if (result != null && result.getResult() == APIConfig.CODE_SUCCESS) {
+//                    //保存我们获取的token在文件中，方便下次获取，这个工具也在下面
+//                        APIUtil.saveToken(result.getData());
+//                    } else {
+//                  //下面的是自己写的一个工具类，也可以用Toast弹窗消息
+//                        ToastUtil.toastByCode(result);
+//                    }
+//                }
+//            });
+//        }
+//    }
+
+
 }

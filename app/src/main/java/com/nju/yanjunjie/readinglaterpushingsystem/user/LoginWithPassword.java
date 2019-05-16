@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -13,7 +14,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nju.yanjunjie.readinglaterpushingsystem.R;
+import com.nju.yanjunjie.readinglaterpushingsystem.data.HttpUtil;
+import com.nju.yanjunjie.readinglaterpushingsystem.data.ReturnInfo;
 import com.nju.yanjunjie.readinglaterpushingsystem.readlater.MainActivity;
+
+import java.io.IOException;
+
+import cn.smssdk.SMSSDK;
+import okhttp3.Call;
+import okhttp3.Response;
 
 public class LoginWithPassword extends Activity {                 //登录界面活动
 
@@ -26,9 +35,9 @@ public class LoginWithPassword extends Activity {                 //登录界面
     private Button registerButton;                          //注册
 
 
-    private SharedPreferences login_sp;
-    private String userNameValue,passwordValue;
-    private UserDataManager mUserDataManager;         //用户数据管理类
+//    private SharedPreferences login_sp;
+//    private String userNameValue,passwordValue;
+//    private UserDataManager mUserDataManager;         //用户数据管理类
 
 
     @Override
@@ -47,11 +56,11 @@ public class LoginWithPassword extends Activity {                 //登录界面
 //        image.setImageResource(R.drawable.logo);
 
 
-        login_sp = getSharedPreferences("userInfo", 0);
-        String name=login_sp.getString("USER_NAME", "");
-        String pwd =login_sp.getString("PASSWORD", "");
-        boolean choseRemember =login_sp.getBoolean("mRememberCheck", false);
-        boolean choseAutoLogin =login_sp.getBoolean("mAutologinCheck", false);
+//        login_sp = getSharedPreferences("userInfo", 0);
+//        String name=login_sp.getString("USER_NAME", "");
+//        String pwd =login_sp.getString("PASSWORD", "");
+//        boolean choseRemember =login_sp.getBoolean("mRememberCheck", false);
+//        boolean choseAutoLogin =login_sp.getBoolean("mAutologinCheck", false);
 
 
         findPassword.setOnClickListener(mListener);
@@ -59,10 +68,10 @@ public class LoginWithPassword extends Activity {                 //登录界面
         loginWithIdentifyCode.setOnClickListener(mListener);
         registerButton.setOnClickListener(mListener);
 
-        if (mUserDataManager == null) {
-            mUserDataManager = new UserDataManager(this);
-            mUserDataManager.openDataBase();                              //建立本地数据库
-        }
+//        if (mUserDataManager == null) {
+//            mUserDataManager = new UserDataManager(this);
+//            mUserDataManager.openDataBase();                              //建立本地数据库
+//        }
     }
 
     OnClickListener mListener = new OnClickListener() {                  //不同按钮按下的监听事件选择
@@ -79,28 +88,78 @@ public class LoginWithPassword extends Activity {                 //登录界面
                 case R.id.login_with_verification_code:                              //登录界面的登录按钮
                     Intent intent_login_with_verification_code = new Intent(LoginWithPassword.this,Login.class) ;    //切换Login Activity至User Activity
                     startActivity(intent_login_with_verification_code);
-//                    finish();
                     break;
                 case R.id.register_btn:                             //登录界面的注销按钮
                     Intent intent_register = new Intent(LoginWithPassword.this,Register.class) ;    //切换Login Activity至User Activity
                     startActivity(intent_register);
-//                    finish();
                     break;
             }
         }
     };
 
     public void login() {                                              //登录按钮监听事件
-        if (isUserNameAndPwdValid()) {
-            String tel = loginTel.getText().toString().trim();    //获取当前输入的手机和密码信息
+        if (isUserIdAndPwdValid()) {
+            String userId = loginTel.getText().toString().trim();    //获取当前输入的手机和密码信息
             String userPwd = loginPassword.getText().toString().trim();
-            SharedPreferences.Editor editor =login_sp.edit();
+            User user = new User();
+            user.setUserId(userId);
+            user.setPassword(userPwd);
+//            SharedPreferences.Editor editor =login_sp.edit();
 //            int result=mUserDataManager.findUserByNameAndPwd(tel, userPwd);
             int result = 1;
+            HttpUtil.sendOkHttpRequest(user, ReturnInfo.address + ":2221/validateUser", new okhttp3.Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseData = response.body().string();
+                    if (responseData.equals("1")){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String fail = "您的手机号未注册";
+                                Toast.makeText(LoginWithPassword.this, fail,
+                                        Toast.LENGTH_LONG).show();
+                                Log.d("Login", fail);
+                            }
+                        });
+                    } else if (responseData.equals("2")) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String fail = "您的账号或者密码错误";
+                                Toast.makeText(LoginWithPassword.this, fail,
+                                        Toast.LENGTH_LONG).show();
+                                Log.d("Login", fail);
+                            }
+                        });
+                    } else if (responseData.equals("3")) {
+                        Intent loginIntent = new Intent(LoginWithPassword.this, MainActivity.class);
+                        startActivity(loginIntent);
+                        finish();
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String fail = "网络连接失败";
+                            Toast.makeText(LoginWithPassword.this, fail,
+                                    Toast.LENGTH_LONG).show();
+                            Log.d("MainActivity", fail);
+                        }
+                    });
+                }
+
+            });
+
+
             if(result==1){                                             //返回1说明用户名和密码均正确
                 //保存用户名和密码
-                editor.putString("USER_NAME", tel);
-                editor.putString("PASSWORD", userPwd);
+//                editor.putString("USER_NAME", tel);
+//                editor.putString("PASSWORD", userPwd);
 
 //                //是否记住密码
 //                if(mRememberCheck.isChecked()){
@@ -108,7 +167,7 @@ public class LoginWithPassword extends Activity {                 //登录界面
 //                }else{
 //                    editor.putBoolean("mRememberCheck", false);
 //                }
-                editor.commit();
+//                editor.commit();
 
                 Intent intent = new Intent(LoginWithPassword.this,MainActivity.class) ;    //切换Login Activity至MainActivity Activity
                 startActivity(intent);
@@ -121,9 +180,9 @@ public class LoginWithPassword extends Activity {                 //登录界面
     }
 
 
-    public boolean isUserNameAndPwdValid() {
+    public boolean isUserIdAndPwdValid() {
         if (loginTel.getText().toString().trim().equals("")) {
-            Toast.makeText(this, getString(R.string.account_empty),
+            Toast.makeText(this, getString(R.string.tel_empty),
                     Toast.LENGTH_SHORT).show();
             return false;
         } else if (loginPassword.getText().toString().trim().equals("")) {
@@ -136,10 +195,10 @@ public class LoginWithPassword extends Activity {                 //登录界面
 
     @Override
     protected void onResume() {
-        if (mUserDataManager == null) {
-            mUserDataManager = new UserDataManager(this);
-            mUserDataManager.openDataBase();
-        }
+//        if (mUserDataManager == null) {
+//            mUserDataManager = new UserDataManager(this);
+//            mUserDataManager.openDataBase();
+//        }
         super.onResume();
     }
 
@@ -150,10 +209,10 @@ public class LoginWithPassword extends Activity {                 //登录界面
 
     @Override
     protected void onPause() {
-        if (mUserDataManager != null) {
-            mUserDataManager.closeDataBase();
-            mUserDataManager = null;
-        }
+//        if (mUserDataManager != null) {
+//            mUserDataManager.closeDataBase();
+//            mUserDataManager = null;
+//        }
         super.onPause();
     }
 }

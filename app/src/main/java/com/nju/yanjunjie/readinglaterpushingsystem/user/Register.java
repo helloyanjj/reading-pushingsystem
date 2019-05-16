@@ -40,6 +40,8 @@ public class Register extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register);
+        // 注册一个事件回调，用于处理SMSSDK接口请求的结果
+        SMSSDK.registerEventHandler(eventHandler);
 
         registerTel = findViewById(R.id.register_tel);
         registerPassword = findViewById(R.id.register_password);
@@ -62,14 +64,11 @@ public class Register extends AppCompatActivity {
                 case R.id.get_verification_code:                       //确认按钮的监听事件
                     if (isTelValid()) {
                         SMSSDK.getVerificationCode("86", registerTel.getText().toString().trim());
+                        identifyCodeTime.start();
                     }
-                    identifyCodeTime.start();
                     break;
                 case R.id.register_btn:                     //取消按钮的监听事件,由注册界面返回登录界面
                     register_check();
-                    Intent intent_Register_to_Login = new Intent(Register.this, Login.class);    //切换User Activity至Login Activity
-                    startActivity(intent_Register_to_Login);
-                    finish();
                     break;
             }
         }
@@ -100,7 +99,6 @@ public class Register extends AppCompatActivity {
         if (isTelAndCodeAndPwdValid()) {
             String userId = registerTel.getText().toString().trim();
             String userPwd = registerPassword.getText().toString().trim();
-
             user.setUserId(userId);
             user.setPassword(userPwd);
 
@@ -108,7 +106,6 @@ public class Register extends AppCompatActivity {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     String responseData = response.body().string();
-                    System.out.println("============" + responseData);
                     if (responseData.equals("true")) {
                         runOnUiThread(new Runnable() {
                             @Override
@@ -118,8 +115,6 @@ public class Register extends AppCompatActivity {
                             }
                         });
                     } else if (responseData.equals("false")) {
-                        // 注册一个事件回调，用于处理SMSSDK接口请求的结果
-                        SMSSDK.registerEventHandler(eventHandler);
                         // 提交验证码，其中的code表示验证码，如“1357”
                         SMSSDK.submitVerificationCode("86", registerTel.getText().toString(), identifyCode.getText().toString());
                     }
@@ -199,7 +194,27 @@ public class Register extends AppCompatActivity {
                                 @Override
                                 public void onResponse(Call call, Response response) throws IOException {
                                     String responseData = response.body().string();
-
+                                    if(responseData.equals("true")) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                String success = "注册成功";
+                                                Toast.makeText(Register.this, success,
+                                                        Toast.LENGTH_LONG).show();
+                                                Log.d("Register", success);
+                                            }
+                                        });
+                                    }else if (responseData.equals("false")) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                String fail = "注册失败";
+                                                Toast.makeText(Register.this, fail,
+                                                        Toast.LENGTH_LONG).show();
+                                                Log.d("Register", fail);
+                                            }
+                                        });
+                                    }
                                 }
 
                                 @Override
@@ -218,7 +233,6 @@ public class Register extends AppCompatActivity {
                             });
                             Intent loginActivity = new Intent(Register.this, Login.class);
                             startActivity(loginActivity);
-
                         } else {
                             // TODO 处理错误的结果
                             ((Throwable) data).printStackTrace();

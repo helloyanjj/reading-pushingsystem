@@ -34,19 +34,24 @@ android {
         }
     }
 }
-//apply plugin: 'com.mob.sdk'
+apply plugin: 'com.mob.sdk'
 
-//MobSDK {
-//    appKey "2af96f10204f0"
-//    appSecret "336ca229cff5753c60749728f10343c0"
-//    SMSSDK {}
-//}
-
-repositories {
-    flatDir {
-        dirs 'libs'
+MobSDK {
+    appKey "2af96f10204f0"
+    appSecret "336ca229cff5753c60749728f10343c0"
+    SMSSDK {
+        //默认使用GUI，若不使用GUI，通过以下开关关闭
+        gui false
+        //若使用GUI的自动填充验证码功能，需打开此设置
+        //autoSMS true
     }
 }
+
+//repositories {
+//    flatDir {
+//        dirs 'libs'
+//    }
+//}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -68,10 +73,10 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.getui:sdk:2.13.0.0'
 
-    implementation name: 'SMSSDK-3.3.1', ext: 'jar'
-    implementation name: 'SDKWrapper-2018.0801.1824', ext: 'jar'
-    implementation name: 'MobCommons-2019.0423.2029', ext: 'jar'
-    implementation name: 'MobTools-2019.0417.1645', ext: 'jar'
+//    implementation name: 'SMSSDK-3.3.1', ext: 'jar'
+//    implementation name: 'SDKWrapper-2018.0801.1824', ext: 'jar'
+//    implementation name: 'MobCommons-2019.0423.2029', ext: 'jar'
+//    implementation name: 'MobTools-2019.0417.1645', ext: 'jar'
 //    implementation 'com.android.support:support-v4:+'
 //    implementation 'com.parse:parse-android:1.13.0'
 //    implementation 'net.sf.json-lib:json-lib:2.4:jdk15'
